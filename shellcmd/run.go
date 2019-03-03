@@ -14,25 +14,30 @@ func RunAction(cmd *cobra.Command, args []string) {
 		return
 	}
 
+	failCases := make([]string, 0)
+
 	for path, content := range scriptsToRun{
 		fmt.Printf("======start run test case: %s \n", path)
-		runScript(path, content)
+		runScript(path, content, &failCases)
 	}
+
+	fmt.Printf("\n\n fail cases: %v \n", failCases)
 }
 
-func runScript(path string, content string) {
+func runScript(path string, content string, cases *[]string) {
 
 	var lineNum int
 
 	//脚本执行出错,测试用例失败,将其捕获
 	defer func() {
 		if err := recover(); err != nil{
+			*cases = append(*cases, path)
 			fmt.Printf("======%s test case fail, line num %d fail, error message: %s \n", path, lineNum, err)
 		}
 	}()
 
 	//还原现场,再跑新的test case
-	dockerctl.DockerCompose("", "up")
+	dockerctl.DockerCompose("", "up", "-d")
 
 	//逐行执行脚本
 	for i, lineStr := range strings.Split(content, "\n") {

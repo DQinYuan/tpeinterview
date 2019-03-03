@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/DQinYuan/tpeinterview/db"
 	"github.com/DQinYuan/tpeinterview/dockerctl"
 	"github.com/DQinYuan/tpeinterview/shellcmd"
 	"github.com/chzyer/readline"
@@ -9,6 +10,7 @@ import (
 	"io"
 	"os"
 	"strings"
+	"time"
 )
 
 /**
@@ -28,9 +30,6 @@ import (
     run
     nodes
 
-
-
-记得做程序退出时的自动docker-compose stops
  */
 
 
@@ -45,7 +44,17 @@ func main() {
 
 			//启动tidb
 			fmt.Println("tidb starting..., Please wait some seconds")
-			dockerctl.DockerCompose(args[0], "up")
+			dockerctl.DockerCompose(args[0], "up", "-d")
+
+			//尝试建立连接,以验证tidb是否真正启动完毕
+			for {
+				testDB := db.CreateDB()
+				if testDB != nil{
+					break
+				}
+				time.Sleep(time.Second * 10)
+			}
+
 
 			l, err := readline.NewEx(&readline.Config{
 				Prompt:            "\033[31m»\033[0m ",
@@ -71,6 +80,8 @@ func main() {
 					continue
 				}
 				if line == "exit" {
+					fmt.Println("stopping tidb..., please wait some seconds")
+					dockerctl.DockerCompose("", "stop", "")
 					return
 				}
 

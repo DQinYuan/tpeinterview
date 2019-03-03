@@ -201,7 +201,7 @@ func CreateDB() (*mysqlDB) {
 
 	onceInterruptable.Do(func() {
 
-		fmt.Println("connect to tidb")
+		fmt.Println("test connect to tidb")
 
 		d := new(mysqlDB)
 

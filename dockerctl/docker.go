@@ -73,12 +73,19 @@ var dockerComposePath *string = nil
 /*
 利用docker-compose启动或停止tidb
  */
-func DockerCompose(path string, action string) {
+func DockerCompose(path string, action string, arg string) {
 	if dockerComposePath == nil{
 		dockerComposePath = &path
 	}
 
-	out, err := execShell("docker-compose", "-f", *dockerComposePath, action, "-d")
+	var out string
+	var err error
+	if arg == ""{
+		out, err = execShell("docker-compose", "-f", *dockerComposePath, action)
+	} else {
+		out, err = execShell("docker-compose", "-f", *dockerComposePath, action, arg)
+	}
+
 	if err != nil{
 		fmt.Println(out)
 		os.Exit(1)
