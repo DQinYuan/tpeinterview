@@ -1,0 +1,4 @@
+write 3
+auth
+kill tidb-docker-compose_tikv0_1
+auth
